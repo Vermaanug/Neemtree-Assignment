@@ -6,6 +6,7 @@ import axios from "axios";
 
 const LandingPage = () => {
   const [users, setUsers] = useState([]);
+  const [searchEmail, setSearchEmail] = useState("");
   const navigate = useNavigate();
 
   const fetchUsersData = async () => {
@@ -25,6 +26,13 @@ const LandingPage = () => {
     navigate("/add-user");
   };
 
+  const handleEditUserClick = (userId) => {
+    navigate(`/edit-user/${userId}`);
+  };
+
+  const filteredUsers = users.filter((user) =>
+    user.email.toLowerCase().includes(searchEmail.toLowerCase())
+  );
 
   return (
     <div>
@@ -39,6 +47,8 @@ const LandingPage = () => {
               <input
                 className="border border-gray-300 rounded py-2 px-4"
                 placeholder="Search for email"
+                value={searchEmail}
+                onChange={(e) => setSearchEmail(e.target.value)}
               />
               <button
                 className="text-white font-bold py-2 px-4 rounded flex bg-green-500 hover:bg-green-700"
@@ -53,22 +63,25 @@ const LandingPage = () => {
                   <tr className="bg-gray-200">
                     <th className="px-4 py-2">NAME</th>
                     <th className="px-4 py-2">PHONE NO.</th>
-                    <th className="px-4 py-2">TYPE</th>
+                    <th className="px-4 py-2">EMAIL</th>
+                    <th className="px-4 py-2">ROLE</th>
                     <th className="px-4 py-2">LOCATION</th>
-                    <th className="px-4 py-2">DEPARTMENT</th>
+                    <th className="px-4 py-2">FUNCTION</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <tr key={user._id} className="text-center border-b">
                       <td className="px-4 py-2">{`${user.firstName} ${user.lastName}`}</td>
                       <td className="px-4 py-2">{user.phone}</td>
+                      <td className="px-4 py-2">{user.email}</td>
                       <td className="px-4 py-2">{user.role}</td>
                       <td className="px-4 py-2">{user.location}</td>
-                      <td className="px-4 py-2">{user.department}</td>
                       <td className="px-4 py-2">
-                        <button className="font-bold py-1 px-2 rounded opacity-0 hover:opacity-100"
-                      >
+                        <button
+                          onClick={() => handleEditUserClick(user._id)}
+                          className="font-bold py-1 px-2 rounded opacity-0 hover:opacity-100"
+                        >
                           <FiEdit2 />
                         </button>
                       </td>

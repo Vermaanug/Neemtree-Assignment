@@ -1,18 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import AddUser from "./Components/AddUser";
-import LandingPage from "./Components/LandingPage";
+import LandingPage from "../src/Components/LandingPage";
+import UserForm from "../src/Components/UserForm";
 
-const App = () => {
+function App() {
   return (
     <Router>
-      <div>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/add-user" element={<AddUser />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/add-user" element={<UserForm />} />
+        <Route path="/edit-user/:id" element={<UserForm />} />
+      </Routes>
     </Router>
   );
-};
+}
 
 export default App;

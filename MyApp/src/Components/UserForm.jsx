@@ -1,8 +1,11 @@
-import { useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { checkValidData } from "../utilis/Validate.js";
 
-const AddUser = () => {
+const UserForm = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
 
   const firstName = useRef(null);
@@ -13,11 +16,31 @@ const AddUser = () => {
   const location = useRef(null);
   const department = useRef(null);
 
+  useEffect(() => {
+    if (id) {
+      const fetchUser = async () => {
+        try {
+          const response = await axios.get(`http://localhost:8000/api/users/${id}`);
+          const user = response.data;
+          firstName.current.value = user.firstName;
+          lastName.current.value = user.lastName;
+          phone.current.value = user.phone;
+          email.current.value = user.email;
+          role.current.value = user.role;
+          location.current.value = user.location;
+          department.current.value = user.department;
+        } catch (error) {
+          console.error("Error fetching user:", error);
+        }
+      };
+      fetchUser();
+    }
+  }, [id]);
+
   const handleButtonClick = async () => {
     const message = checkValidData(email.current.value);
     setErrorMessage(message);
     if (message) return;
-  
     const user = {
       firstName: firstName.current.value,
       lastName: lastName.current.value,
@@ -27,23 +50,16 @@ const AddUser = () => {
       location: location.current.value,
       department: department.current.value,
     };
-
-    try {
-      const response = await axios.post('http://localhost:8000/api/register', user);
-
   
-      if (response.data) {
-        firstName.current.value = "";
-        lastName.current.value = "";
-        phone.current.value = "";
-        email.current.value = "";
-        role.current.value = "";
-        location.current.value = "";
-        department.current.value = "";
+    try {
+      if (id) {
+        await axios.put(`http://localhost:8000/api/users/${id}`, user);
+      } else {
+        await axios.post('http://localhost:8000/api/register', user);
       }
+      navigate("/"); 
     } catch (error) {
-      console.error("Error adding user:", error.response ? error.response.data : error.message);
-      setErrorMessage("An error occurred while adding the user. Please try again.");
+      setErrorMessage(error.response?.data?.message || "Error saving user data");
     }
   };
 
@@ -87,7 +103,7 @@ const AddUser = () => {
             </label>
             <input
               ref={phone}
-              type="text" 
+              type="text"
               placeholder="Phone Number"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
@@ -144,7 +160,7 @@ const AddUser = () => {
             className="text-white font-bold py-2 px-4 rounded bg-green-500 hover:bg-green-700"
             onClick={handleButtonClick}
           >
-            Save
+            {id ? "Update" : "Save"}
           </button>
         </div>
       </form>
@@ -152,4 +168,4 @@ const AddUser = () => {
   );
 };
 
-export default AddUser;
+export default UserForm;
